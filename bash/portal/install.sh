@@ -144,8 +144,8 @@ else
             else
                 # Install the MySQL server package now if it is not already installed.
                 whiptail --backtitle "${RECEIVER_PROJECT_TITLE}" --title "MySQL Server Setup" --msgbox "This script will now check for the MySQL server package. If the MySQL server package is not installed it will be installed at this time.\n\nPlease note you may be asked questions used to secure your database server installation after the setup process." 12 78
-                CheckPackage mysql-server
-                if [[ $(dpkg-query -W -f='${STATUS}' mariadb-server-10.1 2>/dev/null | grep -c "ok installed") -eq 1 ]] ; then
+                CheckPackage mariadb-client-10.0
+                if [[ $(dpkg-query -W -f='${STATUS}' mariadb-server-10.0 2>/dev/null | grep -c "ok installed") -eq 1 ]] ; then
                     echo -e "\e[94m  Executing the mysql_secure_installation script...\e[97m"
                     sudo mysql_secure_installation
                     echo ""
@@ -244,7 +244,7 @@ fi
 DISTRO_PHP_VERSION="5"
 case $RECEIVER_OS_DISTRIBUTION in
     debian|raspbian)
-        if [[ $RECEIVER_OS_RELEASE -ge "9" ]]; then DISTRO_PHP_VERSION="7.0"; fi
+        if [[ $RECEIVER_OS_RELEASE -ge "9" ]]; then DISTRO_PHP_VERSION="7.3"; fi
         ;;
     ubuntu)
         if [ `bc -l <<< "$RECEIVER_OS_RELEASE >= 16.04"` -eq 1 ]; then DISTRO_PHP_VERSION="7.0"; fi
@@ -274,7 +274,7 @@ if [[ "${ADVANCED}" = "true" ]] ; then
     CheckPackage python-apt
     case "${DATABASEENGINE}" in
         "MySQL")
-            CheckPackage mysql-client
+            CheckPackage mariadb-client-10.0
             CheckPackage python-mysqldb
             CheckPackage php${DISTRO_PHP_VERSION}-mysql
             ;;
