@@ -82,7 +82,7 @@
 {area:scripts}
     {if page:flightPathsAvailable eq FALSE}
     <script type="text/javascript">
-        $(window).load(function(){
+        $(window).on('load',function(){
             $('#no-data-modal').modal('show');
         });
     </script>
@@ -161,13 +161,34 @@
         "43.88916 4.2929558,44.057819 3.4954426,43.86823 2.7487826,43.690732 2.2007966," +
         "42.916622 1.9565564,41.694305 z";
 
+// kw: replace the google maps content here with openstreetmap
+// kw: see https://wiki.openstreetmap.org/wiki/Google_Maps_Example
+
       function initMap() {
         var map = new google.maps.Map(document.getElementById('map'), {
           zoom: 7,
           center: {lat: {setting:advancedMapCenterLatitude}, lng: {setting:advancedMapCenterLongitude}},
-          mapTypeId: google.maps.MapTypeId.TERRAIN
+       //   mapTypeId: google.maps.MapTypeId.TERRAIN
+       	    mapTypeId: "OSM"
         });
+            map.mapTypes.set("OSM", new google.maps.ImageMapType({
+                getTileUrl: function(coord, zoom) {
+                    // "Wrap" x (longitude) at 180th meridian properly
+                    // NB: Don't touch coord.x: because coord param is by reference, and changing its x property breaks something in Google's lib
+                    var tilesPerGlobe = 1 << zoom;
+                    var x = coord.x % tilesPerGlobe;
+                    if (x < 0) {
+                        x = tilesPerGlobe+x;
+                    }
+                    // Wrap y (latitude) in a like manner if you want to enable vertical infinite scrolling
 
+                    return "https://tile.openstreetmap.org/" + zoom + "/" + x + "/" + coord.y + ".png";
+                },
+                tileSize: new google.maps.Size(256, 256),
+                name: "OpenStreetMap",
+                maxZoom: 18
+            }));
+	    
         var pathsSeen = {page:pathsSeen};
 
         {foreach page:flightPaths as flightPath}
